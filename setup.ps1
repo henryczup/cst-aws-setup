@@ -39,7 +39,7 @@ Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Step 1: Install Chocolatey (package manager)
-Write-Host "[1/8] Installing Chocolatey..." -ForegroundColor Yellow
+Write-Host "[1/9] Installing Chocolatey..." -ForegroundColor Yellow
 if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
     Set-ExecutionPolicy Bypass -Scope Process -Force
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
@@ -50,7 +50,7 @@ if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
 }
 
 # Step 2: Install Git for Windows
-Write-Host "[2/8] Installing Git for Windows..." -ForegroundColor Yellow
+Write-Host "[2/9] Installing Git for Windows..." -ForegroundColor Yellow
 if (!(Test-Path "C:\Program Files\Git\bin\git.exe")) {
     choco install git -y --no-progress
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -60,7 +60,7 @@ if (!(Test-Path "C:\Program Files\Git\bin\git.exe")) {
 }
 
 # Step 3: Install AWS CLI
-Write-Host "[3/8] Installing AWS CLI..." -ForegroundColor Yellow
+Write-Host "[3/9] Installing AWS CLI..." -ForegroundColor Yellow
 $awsInstaller = "$env:TEMP\AWSCLIV2.msi"
 if (!(Test-Path "C:\Program Files\Amazon\AWSCLIV2\aws.exe")) {
     Invoke-WebRequest -Uri "https://awscli.amazonaws.com/AWSCLIV2.msi" -OutFile $awsInstaller
@@ -71,32 +71,43 @@ if (!(Test-Path "C:\Program Files\Amazon\AWSCLIV2\aws.exe")) {
     Write-Host "  Already installed." -ForegroundColor Green
 }
 
-# Step 4: Configure AWS
+# Step 4: Install Python 3.9
 Write-Host ""
-Write-Host "[4/8] Configuring AWS credentials..." -ForegroundColor Yellow
+Write-Host "[4/9] Installing Python 3.9..." -ForegroundColor Yellow
+if (!(Get-Command python -ErrorAction SilentlyContinue) -or !((python --version 2>&1) -match "3\.9")) {
+    choco install python39 -y --no-progress
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Write-Host "  Done." -ForegroundColor Green
+} else {
+    Write-Host "  Already installed." -ForegroundColor Green
+}
+
+# Step 5: Configure AWS
+Write-Host ""
+Write-Host "[5/9] Configuring AWS credentials..." -ForegroundColor Yellow
 Write-Host "  Enter your AWS credentials when prompted:" -ForegroundColor White
 Write-Host ""
 & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" configure
 
-# Step 5: Install WebView2 Runtime (required for GlobalProtect)
+# Step 6: Install WebView2 Runtime (required for GlobalProtect)
 Write-Host ""
-Write-Host "[5/8] Installing WebView2 Runtime..." -ForegroundColor Yellow
+Write-Host "[6/9] Installing WebView2 Runtime..." -ForegroundColor Yellow
 $webview2Installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
 Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $webview2Installer
 Start-Process -FilePath $webview2Installer -Args "/silent /install" -Wait
 Write-Host "  Done." -ForegroundColor Green
 
-# Step 6: Install GlobalProtect VPN
+# Step 7: Install GlobalProtect VPN
 Write-Host ""
-Write-Host "[6/8] Installing GlobalProtect VPN..." -ForegroundColor Yellow
+Write-Host "[7/9] Installing GlobalProtect VPN..." -ForegroundColor Yellow
 $gpInstaller = "$env:TEMP\globalprotect.msi"
 & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" s3 cp "$S3Bucket/installers/globalprotect.msi" $gpInstaller
 Start-Process msiexec.exe -ArgumentList "/i", $gpInstaller, "/quiet" -Wait
 Write-Host "  Done." -ForegroundColor Green
 
-# Step 7: Download CST Installer
+# Step 8: Download CST Installer
 Write-Host ""
-Write-Host "[7/8] Downloading CST Studio Suite (~8.5 GB)..." -ForegroundColor Yellow
+Write-Host "[8/9] Downloading CST Studio Suite (~8.5 GB)..." -ForegroundColor Yellow
 Write-Host "  This will take several minutes..." -ForegroundColor Gray
 $cstZip = "C:\CST_Installer.zip"
 $cstDir = "C:\CST_Installer"
@@ -110,10 +121,10 @@ if (!(Test-Path $cstDir)) {
     Write-Host "  Already downloaded." -ForegroundColor Green
 }
 
-# Step 8: Launch CST Installer
+# Step 9: Launch CST Installer
 $cstSetup = "C:\CST_Installer\SIMULIA_CST_Studio_Suite.Windows64\setup.exe"
 Write-Host ""
-Write-Host "[8/8] Launching CST installer..." -ForegroundColor Yellow
+Write-Host "[9/9] Launching CST installer..." -ForegroundColor Yellow
 if (Test-Path $cstSetup) {
     Write-Host "  Running: $cstSetup" -ForegroundColor Gray
     Start-Process -FilePath $cstSetup -Wait
