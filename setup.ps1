@@ -35,8 +35,19 @@ Write-Host "  CST Studio Suite - AWS Setup" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Step 1: Install AWS CLI
-Write-Host "[1/5] Installing AWS CLI..." -ForegroundColor Yellow
+# Step 1: Install Git for Windows
+Write-Host "[1/7] Installing Git for Windows..." -ForegroundColor Yellow
+$gitInstaller = "$env:TEMP\Git-64-bit.exe"
+if (!(Test-Path "C:\Program Files\Git\bin\git.exe")) {
+    Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/latest/download/Git-64-bit.exe" -OutFile $gitInstaller
+    Start-Process -FilePath $gitInstaller -ArgumentList "/VERYSILENT","/NORESTART" -Wait
+    Write-Host "  Done." -ForegroundColor Green
+} else {
+    Write-Host "  Already installed." -ForegroundColor Green
+}
+
+# Step 2: Install AWS CLI
+Write-Host "[2/7] Installing AWS CLI..." -ForegroundColor Yellow
 $awsInstaller = "$env:TEMP\AWSCLIV2.msi"
 if (!(Test-Path "C:\Program Files\Amazon\AWSCLIV2\aws.exe")) {
     Invoke-WebRequest -Uri "https://awscli.amazonaws.com/AWSCLIV2.msi" -OutFile $awsInstaller
@@ -47,32 +58,32 @@ if (!(Test-Path "C:\Program Files\Amazon\AWSCLIV2\aws.exe")) {
     Write-Host "  Already installed." -ForegroundColor Green
 }
 
-# Step 2: Configure AWS
+# Step 3: Configure AWS
 Write-Host ""
-Write-Host "[2/5] Configuring AWS credentials..." -ForegroundColor Yellow
+Write-Host "[3/7] Configuring AWS credentials..." -ForegroundColor Yellow
 Write-Host "  Enter your AWS credentials when prompted:" -ForegroundColor White
 Write-Host ""
 & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" configure
 
-# Step 3: Install WebView2 Runtime (required for GlobalProtect)
+# Step 4: Install WebView2 Runtime (required for GlobalProtect)
 Write-Host ""
-Write-Host "[3/5] Installing WebView2 Runtime..." -ForegroundColor Yellow
+Write-Host "[4/7] Installing WebView2 Runtime..." -ForegroundColor Yellow
 $webview2Installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
 Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $webview2Installer
 Start-Process -FilePath $webview2Installer -Args "/silent /install" -Wait
 Write-Host "  Done." -ForegroundColor Green
 
-# Step 4: Install GlobalProtect VPN
+# Step 5: Install GlobalProtect VPN
 Write-Host ""
-Write-Host "[4/5] Installing GlobalProtect VPN..." -ForegroundColor Yellow
+Write-Host "[5/7] Installing GlobalProtect VPN..." -ForegroundColor Yellow
 $gpInstaller = "$env:TEMP\globalprotect.msi"
 & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" s3 cp "$S3Bucket/installers/globalprotect.msi" $gpInstaller
 Start-Process msiexec.exe -ArgumentList "/i", $gpInstaller, "/quiet" -Wait
 Write-Host "  Done." -ForegroundColor Green
 
-# Step 5: Download CST Installer
+# Step 6: Download CST Installer
 Write-Host ""
-Write-Host "[5/5] Downloading CST Studio Suite (~8.5 GB)..." -ForegroundColor Yellow
+Write-Host "[6/7] Downloading CST Studio Suite (~8.5 GB)..." -ForegroundColor Yellow
 Write-Host "  This will take several minutes..." -ForegroundColor Gray
 $cstZip = "C:\CST_Installer.zip"
 $cstDir = "C:\CST_Installer"
@@ -86,10 +97,10 @@ if (!(Test-Path $cstDir)) {
     Write-Host "  Already downloaded." -ForegroundColor Green
 }
 
-# Step 6: Launch CST Installer
+# Step 7: Launch CST Installer
 $cstSetup = "C:\CST_Installer\SIMULIA_CST_Studio_Suite.Windows64\setup.exe"
 Write-Host ""
-Write-Host "[6/6] Launching CST installer..." -ForegroundColor Yellow
+Write-Host "[7/7] Launching CST installer..." -ForegroundColor Yellow
 if (Test-Path $cstSetup) {
     Write-Host "  Running: $cstSetup" -ForegroundColor Gray
     Start-Process -FilePath $cstSetup -Wait
