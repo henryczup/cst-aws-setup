@@ -6,8 +6,16 @@
 #   1. Launch a Windows Server 2022 EC2 instance
 #   2. RDP into the instance
 #   3. Open PowerShell as Administrator
-#   4. Run: Set-ExecutionPolicy Bypass -Scope Process -Force
-#   5. Run: .\setup.ps1
+#   4. If the repo is private, set a GitHub token in the session (don’t hardcode it):
+#        $env:GITHUB_TOKEN = "<your_token_here>"
+#        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/henryczup/cst-aws-setup/main/setup.ps1" `
+#          -Headers @{ Authorization = "token $env:GITHUB_TOKEN" } `
+#          -OutFile C:\setup.ps1
+#        C:\setup.ps1
+#   5. Otherwise (public repo), run:
+#        Set-ExecutionPolicy Bypass -Scope Process -Force
+#        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/henryczup/cst-aws-setup/main/setup.ps1" -OutFile C:\setup.ps1
+#        C:\setup.ps1
 #
 # Requirements:
 #   - UW Madison credentials (for VPN and CST license)
