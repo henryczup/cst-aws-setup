@@ -15,7 +15,7 @@ Run CST Studio Suite simulations on AWS EC2 with UW Madison license.
 2. Click **Launch Instance**
 3. Configure:
    - **Name**: `cst-workstation`
-   - **AMI**: Windows Server 2022 Base
+   - **AMI**: Windows Server 2019 Base
    - **Instance type**: `c5.4xlarge` (16 vCPU, recommended) or `c5.2xlarge` (8 vCPU, cheaper)
    - **Key pair**: Create new or select existing (you'll need this for RDP password)
    - **Security group**: Create new, allow **RDP (port 3389)** from "My IP"
