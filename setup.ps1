@@ -29,6 +29,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Ensure modern TLS for downloads
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "  CST Studio Suite - AWS Setup" -ForegroundColor Cyan
@@ -39,7 +42,10 @@ Write-Host ""
 Write-Host "[1/7] Installing Git for Windows..." -ForegroundColor Yellow
 $gitInstaller = "$env:TEMP\Git-64-bit.exe"
 if (!(Test-Path "C:\Program Files\Git\bin\git.exe")) {
-    Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/latest/download/Git-64-bit.exe" -OutFile $gitInstaller
+    Invoke-WebRequest `
+        -Uri "https://github.com/git-for-windows/git/releases/latest/download/Git-64-bit.exe" `
+        -Headers @{ "User-Agent" = "Mozilla/5.0" } `
+        -OutFile $gitInstaller
     Start-Process -FilePath $gitInstaller -ArgumentList "/VERYSILENT","/NORESTART" -Wait
     Write-Host "  Done." -ForegroundColor Green
 } else {
