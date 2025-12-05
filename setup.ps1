@@ -78,6 +78,18 @@ if (!(Test-Path $cstDir)) {
     Write-Host "  Already downloaded." -ForegroundColor Green
 }
 
+# Step 6: Launch CST Installer
+$cstSetup = "C:\CST_Installer\SIMULIA_CST_Studio_Suite.Windows64\setup.exe"
+Write-Host ""
+Write-Host "[6/6] Launching CST installer..." -ForegroundColor Yellow
+if (Test-Path $cstSetup) {
+    Write-Host "  Running: $cstSetup" -ForegroundColor Gray
+    Start-Process -FilePath $cstSetup -Wait
+    Write-Host "  Installer finished (check above for any prompts)." -ForegroundColor Green
+} else {
+    Write-Host "  Installer not found at $cstSetup. Please verify the download/extract step." -ForegroundColor Red
+}
+
 # Done!
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
@@ -91,17 +103,11 @@ Write-Host "   - Open GlobalProtect from Start Menu" -ForegroundColor Gray
 Write-Host "   - Portal: $VPNPortal" -ForegroundColor Gray
 Write-Host "   - Login with your UW credentials" -ForegroundColor Gray
 Write-Host ""
-Write-Host "2. INSTALL CST" -ForegroundColor White
-Write-Host "   - Run this command:" -ForegroundColor Gray
-Write-Host "     C:\CST_Installer\SIMULIA_CST_Studio_Suite.Windows64\setup.exe" -ForegroundColor Cyan
-Write-Host "   - License type: FlexNet" -ForegroundColor Gray
-Write-Host "   - License server: $LicenseServer" -ForegroundColor Gray
-Write-Host ""
-Write-Host "3. RUN CST" -ForegroundColor White
+Write-Host "2. RUN CST" -ForegroundColor White
 Write-Host "   - Open CST Studio Suite from Start Menu" -ForegroundColor Gray
 Write-Host "   - Open your project files" -ForegroundColor Gray
 Write-Host ""
-Write-Host "4. STOP INSTANCE WHEN DONE" -ForegroundColor Red
+Write-Host "3. STOP INSTANCE WHEN DONE" -ForegroundColor Red
 Write-Host "   - AWS Console -> EC2 -> Actions -> Stop instance" -ForegroundColor Gray
 Write-Host "   - This stops billing (~`$0.68/hour for c5.4xlarge)" -ForegroundColor Gray
 Write-Host ""

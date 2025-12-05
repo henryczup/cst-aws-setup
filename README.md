@@ -41,6 +41,23 @@ Run CST Studio Suite simulations on AWS EC2 with UW Madison license.
 
 Once connected via RDP, open **PowerShell as Administrator**:
 
+**If the repo is private (GitHub token required):**
+
+1. Create a **fine-grained personal access token** at <https://github.com/settings/tokens?type=beta> with at least **Contents: Read-only** for this repo.
+2. On the EC2 instance, set the token in the session (don’t hardcode it in scripts):
+
+```powershell
+$env:GITHUB_TOKEN = "<your_token_here>"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/henryczup/cst-aws-setup/main/setup.ps1" `
+  -Headers @{ Authorization = "token $env:GITHUB_TOKEN" } `
+  -OutFile C:\setup.ps1
+C:\setup.ps1
+```
+
+Tip: Clear the variable when done: `Remove-Item Env:\GITHUB_TOKEN`.
+
+**If the repo is public:** skip the token and run:
+
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
 
