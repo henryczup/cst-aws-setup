@@ -62,7 +62,7 @@ if (!(Test-Path "C:\Program Files\Git\bin\git.exe")) {
 # Step 3: Install Google Chrome
 Write-Host "[3/10] Installing Google Chrome..." -ForegroundColor Yellow
 if (!(Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe")) {
-    choco install googlechrome -y --no-progress --ignore-checksums
+    choco install googlechrome -y --no-progress --ignore-checksums --force
     Write-Host "  Done." -ForegroundColor Green
 } else {
     Write-Host "  Already installed." -ForegroundColor Green
