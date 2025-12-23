@@ -1,7 +1,7 @@
 # CST Studio Suite - AWS EC2 Setup Script
 # 
 # This script sets up a Windows EC2 instance for running CST simulations.
-# Supports both CPU instances (c5) and GPU instances (g5 with NVIDIA A10G).
+# Supports CPU instances (c5) and GPU instances (g4dn with T4, g5 with A10G).
 # 
 # Usage:
 #   1. Launch a Windows Server 2022 EC2 instance
@@ -39,21 +39,43 @@ Write-Host "  CST Studio Suite - AWS Setup" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Detect GPU instance
-function Test-GPUInstance {
+# Detect GPU instance (supports both IMDSv1 and IMDSv2)
+function Get-EC2InstanceType {
     try {
-        $instanceType = (Invoke-RestMethod -Uri "http://169.254.169.254/latest/meta-data/instance-type" -TimeoutSec 2)
-        return $instanceType -match "^(g[0-9]+|p[0-9]+)"
+        # Try IMDSv2 first (requires token)
+        $token = Invoke-RestMethod -Uri "http://169.254.169.254/latest/api/token" `
+            -Method PUT `
+            -Headers @{"X-aws-ec2-metadata-token-ttl-seconds" = "21600"} `
+            -TimeoutSec 2 `
+            -ErrorAction Stop
+        
+        $instanceType = Invoke-RestMethod -Uri "http://169.254.169.254/latest/meta-data/instance-type" `
+            -Headers @{"X-aws-ec2-metadata-token" = $token} `
+            -TimeoutSec 2
+        
+        return $instanceType
     } catch {
-        Write-Host "  Could not detect instance type, assuming non-GPU" -ForegroundColor Gray
-        return $false
+        try {
+            # Fall back to IMDSv1
+            $instanceType = Invoke-RestMethod -Uri "http://169.254.169.254/latest/meta-data/instance-type" -TimeoutSec 2
+            return $instanceType
+        } catch {
+            return $null
+        }
     }
 }
 
-$isGPUInstance = Test-GPUInstance
-if ($isGPUInstance) {
-    $instanceType = (Invoke-RestMethod -Uri "http://169.254.169.254/latest/meta-data/instance-type" -TimeoutSec 2)
-    Write-Host "GPU Instance Detected: $instanceType" -ForegroundColor Magenta
+$instanceType = Get-EC2InstanceType
+$isGPUInstance = $instanceType -match "^(g[0-9]+|p[0-9]+)"
+
+if ($instanceType) {
+    Write-Host "Instance Type: $instanceType" -ForegroundColor Cyan
+    if ($isGPUInstance) {
+        Write-Host "GPU Detected! Will install NVIDIA drivers." -ForegroundColor Magenta
+    }
+    Write-Host ""
+} else {
+    Write-Host "Could not detect instance type from EC2 metadata" -ForegroundColor Yellow
     Write-Host ""
 }
 
@@ -235,7 +257,7 @@ if ($isGPUInstance) {
     Write-Host "2. VERIFY GPU IN CST" -ForegroundColor White
     Write-Host "   - Open CST Studio Suite" -ForegroundColor Gray
     Write-Host "   - Go to: Simulation > Solver > GPU Computing" -ForegroundColor Gray
-    Write-Host "   - Your NVIDIA A10G should appear in the device list" -ForegroundColor Gray
+    Write-Host "   - Your GPU should appear (T4 for g4dn, A10G for g5)" -ForegroundColor Gray
     Write-Host "   - Enable GPU acceleration for supported solvers" -ForegroundColor Gray
     Write-Host ""
     Write-Host "3. RUN CST WITH GPU" -ForegroundColor White

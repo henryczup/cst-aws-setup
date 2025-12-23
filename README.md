@@ -17,7 +17,8 @@ Run CST Studio Suite simulations on AWS EC2 with UW Madison license.
    - **Name**: `cst-workstation`
    - **AMI**: Windows Server 2022 Base
    - **Instance type**: Choose based on your needs (see [Instance Types](#instance-types))
-     - **GPU (recommended for simulations)**: `g5.xlarge` or `g5.2xlarge`
+     - **GPU (best value)**: `g4dn.xlarge` or `g4dn.2xlarge`
+     - **GPU (higher perf)**: `g5.xlarge` or `g5.2xlarge`
      - **CPU only**: `c5.4xlarge` or `c5.2xlarge`
    - **Key pair**: Create new or select existing (you'll need this for RDP password)
    - **Security group**: Create new, allow **RDP (port 3389)** from "My IP"
@@ -103,7 +104,7 @@ After installing CST on a g5 instance:
 
 1. Open **CST Studio Suite**
 2. Go to **Simulation** → **Solver** → **GPU Computing**
-3. Verify your **NVIDIA A10G** appears in the device list
+3. Verify your GPU appears (NVIDIA T4 for g4dn, A10G for g5)
 4. Check **"Use hardware acceleration"** in solver settings
 
 **Supported GPU-accelerated solvers:**
@@ -142,6 +143,15 @@ After installing CST on a g5 instance:
 
 ### GPU Instances (Recommended for Simulations)
 
+**g4dn (NVIDIA T4) - Best value:**
+| Instance Type | GPU | vCPU | RAM | GPU RAM | $/Hour |
+|---------------|-----|------|-----|---------|--------|
+| g4dn.xlarge | 1x T4 | 4 | 16 GB | 16 GB | ~$0.53 |
+| g4dn.2xlarge | 1x T4 | 8 | 32 GB | 16 GB | ~$0.75 |
+| g4dn.4xlarge | 1x T4 | 16 | 64 GB | 16 GB | ~$1.20 |
+| g4dn.8xlarge | 1x T4 | 32 | 128 GB | 16 GB | ~$2.18 |
+
+**g5 (NVIDIA A10G) - Higher performance:**
 | Instance Type | GPU | vCPU | RAM | GPU RAM | $/Hour |
 |---------------|-----|------|-----|---------|--------|
 | g5.xlarge | 1x A10G | 4 | 16 GB | 24 GB | ~$1.01 |
@@ -190,7 +200,7 @@ After setup on a g5 instance, run in PowerShell:
 nvidia-smi
 ```
 
-You should see output showing your NVIDIA A10G GPU with memory and utilization info.
+You should see output showing your GPU (T4 for g4dn, A10G for g5) with memory and utilization info.
 
 In CST, if GPU is working correctly:
 - **Simulation → Solver → GPU Computing** shows your GPU
