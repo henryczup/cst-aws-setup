@@ -121,7 +121,7 @@ Write-Host "  This will take several minutes..." -ForegroundColor Gray
 $cstZip = "C:\CST_Installer.zip"
 $cstDir = "C:\CST_Installer"
 if (!(Test-Path $cstDir)) {
-    & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" s3 cp "$S3Bucket/installers/CST_S2_2022.CST_S2_2022.SIMULIA_CST_Studio_Suite.Windows64.zip" $cstZip
+    & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" s3 cp "$S3Bucket/installers/CST_S2_2025.CST_S2_2025.SIMULIA_CST_Studio_Suite.Windows64.zip" $cstZip
     Write-Host "  Extracting (this takes a few minutes)..." -ForegroundColor Gray
     Expand-Archive -Path $cstZip -DestinationPath $cstDir -Force
     Remove-Item $cstZip -Force
